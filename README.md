@@ -1,4 +1,5 @@
 # tonic-rest
+
 [![Crates.io](https://img.shields.io/crates/v/tonic-rest.svg)](https://crates.io/crates/tonic-rest)
 [![docs.rs](https://img.shields.io/docsrs/tonic-rest)](https://docs.rs/tonic-rest)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE-MIT)
@@ -69,8 +70,6 @@ where
 Each handler transcodes HTTP/JSON to proto and calls through Tonic service traits,
 sharing auth, validation, and business logic with gRPC handlers.
 
-
-
 ## Crates
 
 | Crate                                            | Purpose                                                              | Cargo section          |
@@ -89,6 +88,29 @@ tonic-rest = "0.1"
 [build-dependencies]
 tonic-rest-build = "0.1"
 ```
+
+## Internal Release / Git Tag Versioning
+
+This repository is commonly consumed directly from Git tags inside the organization.
+
+Create a release tag:
+
+```bash
+git tag tonic-rest@0.1.5
+git push origin tonic-rest@0.1.5
+```
+
+Then consume crates from another project:
+
+```toml
+[dependencies]
+tonic-rest = { git = "ssh://git@github.com/Attraqt/tonic-rest.git", tag = "tonic-rest@0.1.5" }
+
+[build-dependencies]
+tonic-rest-build = { git = "ssh://git@github.com/Attraqt/tonic-rest.git", tag = "tonic-rest@0.1.5" }
+```
+
+This ensures reproducible builds pinned to a released version.
 
 ### `build.rs`
 

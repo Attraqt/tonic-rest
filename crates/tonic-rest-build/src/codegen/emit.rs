@@ -94,7 +94,8 @@ fn write_header(code: &mut String, services: &[ServiceRoute], config: &RestCodeg
         extractors.push("Path");
     }
     if needs_query {
-        extractors.push("Query");
+        let rt = &config.runtime_crate;
+        let _ = writeln!(code, "use {rt}::NestedQuery;");
     }
     extractors.push("State");
     write_use_stmt(code, "axum::extract", &extractors);
@@ -203,7 +204,10 @@ fn generate_sse_handler(
     let ext_and_req = config.extension_and_request_lines("query");
 
     let extractor = if method.http_method == "get" {
-        format!("    Query(query): Query<{}>,\n", method.input_type)
+        format!(
+            "    NestedQuery(query): NestedQuery<{}>,\n",
+            method.input_type
+        )
     } else {
         format!("    Json(query): Json<{}>,\n", method.input_type)
     };
@@ -325,6 +329,10 @@ where
     );
 }
 
+fn get_uses_query_extractor(method: &MethodRoute) -> bool {
+    method.http_method == "get" && method.path_params.is_empty()
+}
+
 /// Build Axum extractor parameters for a JSON handler.
 fn build_extractors(method: &MethodRoute, needs_mut_body: bool) -> String {
     let mut out = String::new();
@@ -366,10 +374,10 @@ fn build_extractors(method: &MethodRoute, needs_mut_body: bool) -> String {
     let mut_kw = if needs_mut_body { "mut " } else { "" };
     if method.has_body && method.http_method != "get" {
         let _ = writeln!(out, "    Json({mut_kw}body): Json<{}>,", method.input_type);
-    } else if method.http_method == "get" {
+    } else if get_uses_query_extractor(method) {
         let _ = writeln!(
             out,
-            "    Query({mut_kw}body): Query<{}>,",
+            "    NestedQuery({mut_kw}body): NestedQuery<{}>,",
             method.input_type
         );
     }
@@ -379,7 +387,7 @@ fn build_extractors(method: &MethodRoute, needs_mut_body: bool) -> String {
 
 /// Build the `let body = T::default();` line for endpoints without a request body.
 fn build_body_creation(method: &MethodRoute, needs_mut_body: bool) -> String {
-    if method.has_body || method.http_method == "get" {
+    if method.has_body || get_uses_query_extractor(method) {
         return String::new();
     }
     let mut_kw = if needs_mut_body { "mut " } else { "" };

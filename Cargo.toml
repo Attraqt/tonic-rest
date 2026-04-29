@@ -26,7 +26,11 @@ prost-build = { version = "0.14" }
 tonic = "0.14"
 
 # HTTP / Web
-axum = { version = "0.8", default-features = false, features = ["json", "tokio", "query"] }
+axum = { version = "0.8", default-features = false, features = [
+    "json",
+    "tokio",
+    "query",
+] }
 http = "1"
 
 # Async
@@ -57,5 +61,5 @@ indoc = "2"
 pretty_assertions = "1"
 
 # Workspace crates
-tonic-rest-core = { version = "0.1", path = "crates/tonic-rest-core" }
-tonic-rest-build = { version = "0.1", path = "crates/tonic-rest-build", default-features = false }
+tonic-rest-core = { version = "0.1.5", path = "crates/tonic-rest-core" }
+tonic-rest-build = { version = "0.1.5", path = "crates/tonic-rest-build", default-features = false }

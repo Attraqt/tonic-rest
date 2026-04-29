@@ -19,3 +19,9 @@ pub use request::{
 };
 pub use sse::sse_error_event;
 pub use status_map::{grpc_code_name, grpc_to_http_status};
+
+/// Query extractors used by generated REST handlers.
+///
+/// Provides support for nested query-string deserialization
+pub mod query;
+pub use query::NestedQuery;

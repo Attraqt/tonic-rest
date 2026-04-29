@@ -70,3 +70,5 @@ macro_rules! concat_forwarded_headers {
 /// Also provides the [`define_enum_serde`] macro for proto enum `#[serde(with)]` modules.
 #[cfg(feature = "serde")]
 pub mod serde;
+
+pub use runtime::NestedQuery;

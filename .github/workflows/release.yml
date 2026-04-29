@@ -1,0 +1,39 @@
+name: Release check
+
+on:
+  push:
+    tags:
+      - "tonic-rest@*"
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -Dwarnings
+
+jobs:
+  release-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@1.87.0
+        with:
+          components: clippy, rustfmt
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Format
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - name: Test
+        run: cargo test --workspace --all-features
+
+      - name: Package check
+        run: |
+          cargo package -p tonic-rest-core --allow-dirty
+          cargo package -p tonic-rest-build --allow-dirty
+          cargo package -p tonic-rest --allow-dirty
+          cargo package -p tonic-rest-openapi --allow-dirty

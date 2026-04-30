@@ -7,7 +7,8 @@
 
 use std::sync::Arc;
 
-use axum::extract::{Json, Path, Query, State};
+use tonic_rest::NestedQuery;
+use axum::extract::{Json, Path, State};
 use axum::http::{HeaderMap, StatusCode};
 use axum::Router;
 
@@ -54,11 +55,11 @@ async fn rest_item_service_get_item<S>(
     State(service): State<Arc<S>>,
     headers: HeaderMap,
     Path(item_id): Path<String>,
-    Query(mut body): Query<crate::test::GetItemRequest>,
 ) -> Result<Json<crate::test::Item>, tonic_rest::RestError>
 where
     S: crate::test::item_service_server::ItemService + Send + Sync + 'static,
 {
+    let mut body = crate::test::GetItemRequest::default();
     body.item_id = item_id;
     let req = tonic_rest::build_tonic_request::<_, ()>(body, &headers, None);
     let response = service.get_item(req).await.map_err(tonic_rest::RestError::from)?;

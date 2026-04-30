@@ -9,7 +9,8 @@ use std::convert::Infallible;
 use std::sync::Arc;
 use std::time::Duration;
 
-use axum::extract::{Json, Query, State};
+use tonic_rest::NestedQuery;
+use axum::extract::{Json, State};
 use axum::http::HeaderMap;
 use axum::response::sse::{Event, KeepAlive, Sse};
 use axum::Router;
@@ -71,7 +72,7 @@ where
 async fn rest_user_service_list_users<S>(
     State(service): State<Arc<S>>,
     headers: HeaderMap,
-    Query(query): Query<crate::users::ListUsersRequest>,
+    NestedQuery(query): NestedQuery<crate::users::ListUsersRequest>,
 ) -> Result<Sse<impl Stream<Item = Result<Event, Infallible>>>, tonic_rest::RestError>
 where
     S: crate::users::user_service_server::UserService + Send + Sync + 'static,

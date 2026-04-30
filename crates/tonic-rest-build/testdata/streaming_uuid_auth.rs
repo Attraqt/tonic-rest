@@ -9,7 +9,8 @@ use std::convert::Infallible;
 use std::sync::Arc;
 use std::time::Duration;
 
-use axum::extract::{Extension, Json, Path, Query, State};
+use tonic_rest::NestedQuery;
+use axum::extract::{Extension, Json, Path, State};
 use axum::http::HeaderMap;
 use axum::response::sse::{Event, KeepAlive, Sse};
 use axum::Router;
@@ -40,7 +41,7 @@ async fn rest_event_service_list_events<S>(
     State(service): State<Arc<S>>,
     headers: HeaderMap,
     ext: Option<Extension<crate::AuthInfo>>,
-    Query(query): Query<crate::test::ListEventsRequest>,
+    NestedQuery(query): NestedQuery<crate::test::ListEventsRequest>,
 ) -> Result<Sse<impl Stream<Item = Result<Event, Infallible>>>, tonic_rest::RestError>
 where
     S: crate::test::event_service_server::EventService + Send + Sync + 'static,

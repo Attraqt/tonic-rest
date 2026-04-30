@@ -137,10 +137,8 @@ pub fn inject_servers_and_info(doc: &mut Value, servers: &[ServerEntry], info: &
 /// Normalize CRLF → LF in all string values within the YAML document.
 pub fn normalize_line_endings(value: &mut Value) {
     match value {
-        Value::String(s) => {
-            if s.contains("\r\n") {
-                *s = s.replace("\r\n", "\n");
-            }
+        Value::String(s) if s.contains("\r\n") => {
+            *s = s.replace("\r\n", "\n");
         }
         Value::Mapping(map) => {
             for (_, v) in map.iter_mut() {

@@ -152,7 +152,7 @@ mod tests {
             field: fields
                 .iter()
                 .map(|(fname, ftype, type_name)| FieldDescriptorProto {
-                    name: Some(fname.to_string()),
+                    name: Some((*fname).to_string()),
                     r#type: Some(*ftype),
                     type_name: type_name.map(ToString::to_string),
                     options: None,

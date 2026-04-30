@@ -581,7 +581,7 @@ fn extract_enum_rewrites(fdset: &FileDescriptorSet) -> (Vec<EnumRewrite>, HashMa
             let mut stripped = Vec::with_capacity(values.len());
             for raw in &values {
                 let suffix = raw[detected_prefix.len()..].to_lowercase();
-                enum_value_map.insert(raw.to_string(), suffix.clone());
+                enum_value_map.insert((*raw).to_string(), suffix.clone());
                 stripped.push(suffix);
             }
 

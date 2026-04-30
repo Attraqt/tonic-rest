@@ -268,7 +268,7 @@ async fn sse_endpoint_streams_events() {
     // Verify both items are in the SSE output.
     assert!(text.contains("\"id\":\"1\""), "missing item 1: {text}");
     assert!(text.contains("\"id\":\"2\""), "missing item 2: {text}");
-    assert!(text.contains("\"name\":\"first\""), "missing first: {text}",);
+    assert!(text.contains("\"name\":\"first\""), "missing first: {text}");
     assert!(
         text.contains("\"name\":\"second\""),
         "missing second: {text}",

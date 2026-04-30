@@ -75,7 +75,7 @@ mod tests {
             text.contains("\"message\":\"item gone\""),
             "missing message: {text}",
         );
-        assert!(text.contains("\"error\":"), "missing error wrapper: {text}",);
+        assert!(text.contains("\"error\":"), "missing error wrapper: {text}");
     }
 
     #[tokio::test]
@@ -89,7 +89,7 @@ mod tests {
             text.contains("\"status\":\"UNAUTHENTICATED\""),
             "missing gRPC status: {text}",
         );
-        assert!(text.contains("\"error\":"), "missing error wrapper: {text}",);
+        assert!(text.contains("\"error\":"), "missing error wrapper: {text}");
     }
 
     #[tokio::test]
@@ -102,7 +102,7 @@ mod tests {
             text.contains("\"status\":\"INTERNAL\""),
             "missing gRPC status: {text}",
         );
-        assert!(text.contains("\"error\":"), "missing error wrapper: {text}",);
+        assert!(text.contains("\"error\":"), "missing error wrapper: {text}");
     }
 
     #[tokio::test]
@@ -115,7 +115,7 @@ mod tests {
             text.contains("\"message\":\"\""),
             "missing empty message: {text}",
         );
-        assert!(text.contains("\"error\":"), "missing error wrapper: {text}",);
+        assert!(text.contains("\"error\":"), "missing error wrapper: {text}");
     }
 
     /// Verify that the SSE response has the correct content-type header.

@@ -280,8 +280,8 @@ impl RestCodegenConfig {
         let rt = &self.runtime_crate;
         let build_fn = if self.extra_forwarded_headers.is_empty() {
             match &self.extension_type {
-                Some(_) => format!("{rt}::build_tonic_request({body_var}, &headers, ext)",),
-                None => format!("{rt}::build_tonic_request::<_, ()>({body_var}, &headers, None)",),
+                Some(_) => format!("{rt}::build_tonic_request({body_var}, &headers, ext)"),
+                None => format!("{rt}::build_tonic_request::<_, ()>({body_var}, &headers, None)"),
             }
         } else {
             match &self.extension_type {
@@ -299,7 +299,7 @@ impl RestCodegenConfig {
                 "    let ext = ext.map(|Extension(v)| v);\n\
                  \x20   let req = {build_fn};\n",
             ),
-            None => format!("    let req = {build_fn};\n",),
+            None => format!("    let req = {build_fn};\n"),
         }
     }
 

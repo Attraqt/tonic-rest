@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-11-13
+
+### Added
+
+- `tonic-rest-openapi`: optional `tag_names` in the project config (and
+  `PatchConfig::tag_names`) to show tags under a display name instead of the
+  proto service name
+
 ## [0.1.6] - 2026-11-13
 
 ### Fixed

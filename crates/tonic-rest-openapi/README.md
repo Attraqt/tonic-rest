@@ -114,6 +114,11 @@ plain_text_endpoints:
 metrics_path: /metrics
 readiness_path: /health/ready
 
+# Optional display names of the tags, which default to the proto service names.
+tag_names:
+  AuthService: Authentication
+  UserService: Users
+
 transforms:
   upgrade_to_3_1: true
   annotate_sse: true

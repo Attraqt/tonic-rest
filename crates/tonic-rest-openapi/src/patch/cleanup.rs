@@ -8,7 +8,7 @@
 //! - `format: enum` noise removal
 //! - Request body inlining with example generation
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 use serde_yaml_ng::Value;
 
@@ -106,6 +106,39 @@ pub fn clean_tag_descriptions(doc: &mut Value) {
         let summary = extract_tag_summary(desc);
         tag_map.insert(desc_key, Value::String(summary));
     }
+}
+
+/// Rename tags to their display name, in the `tags` list and on every operation.
+///
+/// Tags are generated from the proto service names (`UserService`). `names`
+/// maps a generated name to the name to show; a tag it does not list is kept.
+pub fn rename_tags(doc: &mut Value, names: &BTreeMap<String, String>) {
+    if names.is_empty() {
+        return;
+    }
+    let rename = |tag: &mut Value| {
+        if let Some(name) = tag.as_str().and_then(|name| names.get(name)) {
+            *tag = Value::String(name.clone());
+        }
+    };
+
+    if let Some(tags) = doc
+        .as_mapping_mut()
+        .and_then(|m| m.get_mut("tags"))
+        .and_then(Value::as_sequence_mut)
+    {
+        for tag in tags.iter_mut() {
+            if let Some(name) = tag.as_mapping_mut().and_then(|m| m.get_mut("name")) {
+                rename(name);
+            }
+        }
+    }
+
+    for_each_operation(doc, |_path, _method, op_map| {
+        if let Some(tags) = op_map.get_mut("tags").and_then(Value::as_sequence_mut) {
+            tags.iter_mut().for_each(rename);
+        }
+    });
 }
 
 /// Extract the first meaningful line from a raw proto service comment.
@@ -1789,6 +1822,50 @@ paths:
         assert_eq!(
             signout_op.get("summary").unwrap().as_str().unwrap(),
             "Sign out"
+        );
+    }
+
+    #[test]
+    fn tags_renamed_when_listed() {
+        let yaml = r"
+tags:
+  - name: UserService
+    description: Manages users.
+  - name: AuthService
+paths:
+  /v1/users:
+    get:
+      tags:
+        - UserService
+  /v1/sessions:
+    delete:
+      tags:
+        - AuthService
+";
+        let mut doc: Value = serde_yaml_ng::from_str(yaml).unwrap();
+        let names = BTreeMap::from([("UserService".to_string(), "Users".to_string())]);
+        rename_tags(&mut doc, &names);
+
+        // Listed: renamed in the tags list and on its operations
+        assert_eq!(doc["tags"][0]["name"].as_str().unwrap(), "Users");
+        assert_eq!(
+            doc["tags"][0]["description"].as_str().unwrap(),
+            "Manages users."
+        );
+        assert_eq!(
+            doc["paths"]["/v1/users"]["get"]["tags"][0]
+                .as_str()
+                .unwrap(),
+            "Users"
+        );
+
+        // Not listed: keeps the service name
+        assert_eq!(doc["tags"][1]["name"].as_str().unwrap(), "AuthService");
+        assert_eq!(
+            doc["paths"]["/v1/sessions"]["delete"]["tags"][0]
+                .as_str()
+                .unwrap(),
+            "AuthService"
         );
     }
 

@@ -20,6 +20,8 @@ mod security;
 mod streaming;
 mod validation;
 
+use std::collections::BTreeMap;
+
 use serde_yaml_ng::Value;
 
 use crate::config::PlainTextEndpoint;
@@ -78,6 +80,9 @@ pub struct PatchConfig<'a> {
     /// Server entries for the `servers` block.
     servers: Vec<ServerEntry>,
 
+    /// Display names of the tags, keyed by the generated tag name.
+    tag_names: BTreeMap<String, String>,
+
     /// `OpenAPI` `info` block overrides.
     info: InfoOverrides,
 
@@ -104,6 +109,7 @@ impl<'a> PatchConfig<'a> {
             transforms: crate::config::TransformConfig::default(),
             bearer_description: None,
             servers: Vec::new(),
+            tag_names: BTreeMap::new(),
             info: InfoOverrides::default(),
             write_only_fields: Vec::new(),
             read_only_fields: Vec::new(),
@@ -130,6 +136,7 @@ impl<'a> PatchConfig<'a> {
         self.metrics_path.clone_from(&project.metrics_path);
         self.readiness_path.clone_from(&project.readiness_path);
         self.servers.clone_from(&project.servers);
+        self.tag_names.clone_from(&project.tag_names);
         self.info = project.info.clone();
         self.write_only_fields
             .clone_from(&project.write_only_fields);
@@ -334,6 +341,14 @@ impl<'a> PatchConfig<'a> {
         self
     }
 
+    /// Set the display names of the tags, keyed by the generated tag name (the
+    /// proto service name). A tag left out keeps the service name.
+    #[must_use]
+    pub fn tag_names(mut self, tag_names: &BTreeMap<String, String>) -> Self {
+        self.tag_names.clone_from(tag_names);
+        self
+    }
+
     /// Set `OpenAPI` `info` block overrides.
     #[must_use]
     pub fn info(mut self, info: InfoOverrides) -> Self {
@@ -488,6 +503,7 @@ pub fn patch(input_yaml: &str, config: &PatchConfig<'_>) -> error::Result<String
 
     // Phase 7: Cleanup (tags, summaries, empty bodies, format noise)
     cleanup::clean_tag_descriptions(&mut doc);
+    cleanup::rename_tags(&mut doc, &config.tag_names);
     cleanup::populate_operation_summaries(&mut doc);
     cleanup::remove_empty_request_bodies(&mut doc);
     cleanup::remove_unused_empty_schemas(&mut doc);

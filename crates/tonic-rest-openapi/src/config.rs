@@ -38,6 +38,7 @@
 //!   annotate_sse: true
 //! ```
 
+use std::collections::BTreeMap;
 use std::path::Path;
 
 use serde::Deserialize;
@@ -72,6 +73,11 @@ pub struct ProjectConfig {
 
     /// Server entries for the `servers` block.
     pub servers: Vec<ServerEntry>,
+
+    /// Display names of the tags, keyed by the generated tag name (the proto
+    /// service name, e.g. `UserService: Users`). A tag left out keeps the
+    /// service name.
+    pub tag_names: BTreeMap<String, String>,
 
     /// `OpenAPI` `info` block overrides (contact, license, external docs).
     pub info: InfoOverrides,
@@ -229,6 +235,7 @@ impl Default for ProjectConfig {
             metrics_path: None,
             readiness_path: None,
             servers: Vec::new(),
+            tag_names: BTreeMap::new(),
             info: InfoOverrides::default(),
             write_only_fields: Vec::new(),
             read_only_fields: Vec::new(),

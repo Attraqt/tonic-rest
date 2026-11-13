@@ -1124,7 +1124,7 @@ dependencies = [
 
 [[package]]
 name = "tonic-rest"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "axum",
  "chrono",
@@ -1144,7 +1144,7 @@ dependencies = [
 
 [[package]]
 name = "tonic-rest-build"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "indoc",
  "pretty_assertions",
@@ -1158,14 +1158,14 @@ dependencies = [
 
 [[package]]
 name = "tonic-rest-core"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "prost",
 ]
 
 [[package]]
 name = "tonic-rest-openapi"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "anyhow",
  "clap",

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-11-13
+
+### Fixed
+
+- `tonic-rest-openapi`: the operation `summary` taken from the first line of the
+  `description` is moved out of it instead of copied, so UIs no longer show it
+  twice; a description left empty is removed
+
 ## [0.1.5] - 2026-02-15
 
 ### Changed

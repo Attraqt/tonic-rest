@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-11-13
+
+### Added
+
+- `tonic-rest-openapi`: optional `info.description` in the project config (and
+  `InfoOverrides::description`) to replace the generated API description, e.g.
+  with multi-line Markdown containing commas
+
 ## [0.1.7] - 2026-11-13
 
 ### Added

@@ -119,6 +119,14 @@ tag_names:
   AuthService: Authentication
   UserService: Users
 
+# Optional API description (Markdown), replacing the one from the generator.
+# Unlike a protoc-gen-openapi `description=` option, it can contain commas.
+info:
+  description: |
+    Authentication and user management.
+
+    Every route requires a Bearer token, except `Login` and `SignUp`.
+
 transforms:
   upgrade_to_3_1: true
   annotate_sse: true

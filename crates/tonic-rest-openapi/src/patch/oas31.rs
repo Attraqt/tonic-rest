@@ -58,11 +58,13 @@ pub fn convert_nullable(value: &mut Value) {
     }
 }
 
-/// Inject `servers` block and enrich `info` with contact, license, and external docs.
+/// Inject `servers` block and enrich `info` with description, contact, license,
+/// and external docs.
 ///
 /// If no servers are configured, a default `http://localhost:8080` entry is added.
-/// Info overrides are merged into the existing `info` block without replacing
-/// fields already present (e.g., `title` and `version` from gnostic).
+/// Info overrides are merged into the existing `info` block: `title` and
+/// `version` from gnostic are kept, a configured `description` replaces the
+/// generated one.
 pub fn inject_servers_and_info(doc: &mut Value, servers: &[ServerEntry], info: &InfoOverrides) {
     let Some(root) = doc.as_mapping_mut() else {
         return;
@@ -96,6 +98,10 @@ pub fn inject_servers_and_info(doc: &mut Value, servers: &[ServerEntry], info: &
     let Some(info_map) = root.get_mut("info").and_then(Value::as_mapping_mut) else {
         return;
     };
+
+    if let Some(description) = &info.description {
+        info_map.insert(val_s("description"), val_s(description));
+    }
 
     if let Some(tos) = &info.terms_of_service {
         info_map.insert(val_s("termsOfService"), val_s(tos));
@@ -218,6 +224,37 @@ mod tests {
     }
 
     #[test]
+    fn inject_description_replaces_generated_one() {
+        let mut doc: Value = serde_yaml_ng::from_str(
+            "info:\n  title: Test\n  description: Generated, cut at the comma\npaths: {}",
+        )
+        .unwrap();
+        let info = InfoOverrides {
+            description: Some("Configured, with commas, kept.".to_string()),
+            ..InfoOverrides::default()
+        };
+
+        inject_servers_and_info(&mut doc, &[], &info);
+
+        assert_eq!(
+            doc["info"]["description"].as_str().unwrap(),
+            "Configured, with commas, kept."
+        );
+        assert_eq!(doc["info"]["title"].as_str().unwrap(), "Test");
+    }
+
+    #[test]
+    fn inject_generated_description_kept_without_override() {
+        let mut doc: Value =
+            serde_yaml_ng::from_str("info:\n  title: Test\n  description: Generated\npaths: {}")
+                .unwrap();
+
+        inject_servers_and_info(&mut doc, &[], &InfoOverrides::default());
+
+        assert_eq!(doc["info"]["description"].as_str().unwrap(), "Generated");
+    }
+
+    #[test]
     fn inject_custom_servers_and_info() {
         use crate::config::{ContactInfo, LicenseInfo};
 
@@ -233,6 +270,7 @@ mod tests {
             },
         ];
         let info = InfoOverrides {
+            description: None,
             contact: Some(ContactInfo {
                 name: Some("API Team".to_string()),
                 email: Some("api@example.com".to_string()),

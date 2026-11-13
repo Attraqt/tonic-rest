@@ -661,6 +661,7 @@ paths: {}
         .inline_request_bodies(false)
         .flatten_uuid_refs(false)
         .info(InfoOverrides {
+            description: None,
             contact: Some(ContactInfo {
                 name: Some("API Support".to_string()),
                 email: Some("support@example.com".to_string()),

@@ -79,7 +79,7 @@ pub struct ProjectConfig {
     /// service name.
     pub tag_names: BTreeMap<String, String>,
 
-    /// `OpenAPI` `info` block overrides (contact, license, external docs).
+    /// `OpenAPI` `info` block overrides (description, contact, license, external docs).
     pub info: InfoOverrides,
 
     /// Additional field name patterns to mark as `writeOnly`.
@@ -115,6 +115,8 @@ pub struct ServerEntry {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(default)]
 pub struct InfoOverrides {
+    /// API description (Markdown), replacing the one from the generator.
+    pub description: Option<String>,
     /// API contact information.
     pub contact: Option<ContactInfo>,
     /// API license information.
@@ -322,6 +324,10 @@ servers:
   - url: http://localhost:8080
     description: Local dev
 info:
+  description: |
+    Line one, with a comma.
+
+    Line two.
   contact:
     name: API Team
     email: api@example.com
@@ -357,6 +363,10 @@ transforms:
         assert_eq!(config.servers.len(), 2);
         assert_eq!(config.servers[0].url, "https://api.example.com");
         assert_eq!(config.servers[0].description.as_deref(), Some("Production"));
+        assert_eq!(
+            config.info.description.as_deref(),
+            Some("Line one, with a comma.\n\nLine two.\n")
+        );
         assert!(config.info.contact.is_some());
         assert_eq!(
             config.info.contact.as_ref().unwrap().name.as_deref(),

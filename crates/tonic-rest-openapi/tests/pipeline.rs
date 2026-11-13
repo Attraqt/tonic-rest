@@ -256,7 +256,7 @@ components:
 
     // Global security requires bearerAuth
     let security = result["security"].as_sequence().unwrap();
-    assert!(!security.is_empty());
+    assert_ne!(security.len(), 0);
 
     // securitySchemes defined
     let schemes = result["components"]["securitySchemes"]
@@ -267,7 +267,7 @@ components:
     // Public endpoint has empty security
     let auth_op = &result["paths"]["/v1/auth"]["post"];
     let auth_sec = auth_op["security"].as_sequence().unwrap();
-    assert!(auth_sec.is_empty());
+    assert_eq!(auth_sec.len(), 0);
 
     // Protected endpoint has no per-operation override (inherits global)
     let sessions_op = &result["paths"]["/v1/sessions"]["get"];

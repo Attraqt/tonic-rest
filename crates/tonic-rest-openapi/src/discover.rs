@@ -903,8 +903,6 @@ pub fn snake_to_lower_camel(s: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use prost::Message as _;
-
     use crate::descriptor::*;
 
     use super::*;

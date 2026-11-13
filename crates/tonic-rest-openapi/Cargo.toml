@@ -5,7 +5,6 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
-homepage.workspace = true
 description = "OpenAPI 3.1 spec generation and patching from protobuf descriptors for Tonic gRPC services"
 documentation = "https://docs.rs/tonic-rest-openapi"
 readme = "README.md"

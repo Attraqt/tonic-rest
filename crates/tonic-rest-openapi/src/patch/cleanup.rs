@@ -24,6 +24,10 @@ use super::helpers::{
 /// Swagger UI displays `summary` in the collapsed endpoint list. Without it,
 /// the full `description` is shown which can be verbose. This extracts the
 /// first meaningful line of `description` as a concise `summary`.
+///
+/// That line is moved, not copied: UIs render the `summary` as the operation
+/// title right above the `description`, so keeping it would show it twice. The
+/// `description` keeps the remaining lines, and is removed when none are left.
 pub fn populate_operation_summaries(doc: &mut Value) {
     for_each_operation(doc, |_path, _method, op_map| {
         let summary_key = Value::String("summary".to_string());
@@ -42,18 +46,25 @@ pub fn populate_operation_summaries(doc: &mut Value) {
             return;
         };
 
-        let summary = extract_first_line(desc);
-        if !summary.is_empty() {
-            op_map.insert(summary_key, Value::String(summary));
+        let Some((summary, rest)) = split_first_line(desc) else {
+            return;
+        };
+        op_map.insert(summary_key, Value::String(summary));
+        if rest.is_empty() {
+            op_map.remove(&desc_key);
+        } else {
+            op_map.insert(desc_key, Value::String(rest));
         }
     });
 }
 
-/// Extract the first non-empty, non-separator line from text.
+/// Split text into its first non-empty, non-separator line and the lines after it.
 ///
-/// Strips a trailing period for conciseness (consistent with tag summary style).
-fn extract_first_line(text: &str) -> String {
-    for line in text.lines() {
+/// The first line has its trailing period stripped for conciseness (consistent
+/// with tag summary style); the rest is trimmed. `None` when there is no such line.
+fn split_first_line(text: &str) -> Option<(String, String)> {
+    let mut lines = text.lines();
+    for line in lines.by_ref() {
         let trimmed = line.trim();
         if trimmed.is_empty() {
             continue;
@@ -61,9 +72,11 @@ fn extract_first_line(text: &str) -> String {
         if trimmed.chars().all(|c| c == '=') {
             continue;
         }
-        return trimmed.strip_suffix('.').unwrap_or(trimmed).to_string();
+        let first = trimmed.strip_suffix('.').unwrap_or(trimmed).to_string();
+        let rest = lines.collect::<Vec<_>>().join("\n").trim().to_string();
+        return Some((first, rest));
     }
-    String::new()
+    None
 }
 
 /// Simplify tag descriptions for Swagger UI rendering.
@@ -1776,6 +1789,51 @@ paths:
         assert_eq!(
             signout_op.get("summary").unwrap().as_str().unwrap(),
             "Sign out"
+        );
+    }
+
+    #[test]
+    fn operation_summary_is_moved_out_of_description() {
+        let yaml = r"
+paths:
+  /v1/users:
+    get:
+      operationId: UserService_ListUsers
+      description: |
+        ======
+        List all users in the system.
+
+        Supports filtering and pagination.
+    post:
+      operationId: UserService_CreateUser
+      description: Create a new user.
+  /v1/sessions:
+    delete:
+      operationId: AuthService_SignOut
+      summary: Sign out
+      description: |
+        Invalidate the current session.
+        Clears all tokens.
+";
+        let mut doc: Value = serde_yaml_ng::from_str(yaml).unwrap();
+        populate_operation_summaries(&mut doc);
+
+        // The rest of a multi-line description stays, without the summary line
+        let list_op = doc["paths"]["/v1/users"]["get"].as_mapping().unwrap();
+        assert_eq!(
+            list_op.get("description").unwrap().as_str().unwrap(),
+            "Supports filtering and pagination."
+        );
+
+        // A single-line description is entirely the summary: removed
+        let create_op = doc["paths"]["/v1/users"]["post"].as_mapping().unwrap();
+        assert!(create_op.get("description").is_none());
+
+        // Existing summary: description untouched
+        let signout_op = doc["paths"]["/v1/sessions"]["delete"].as_mapping().unwrap();
+        assert_eq!(
+            signout_op.get("description").unwrap().as_str().unwrap(),
+            "Invalidate the current session.\nClears all tokens.\n"
         );
     }
 

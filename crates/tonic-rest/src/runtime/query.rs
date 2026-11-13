@@ -30,21 +30,25 @@ impl IntoResponse for NestedQueryRejection {
 impl<S, T> FromRequestParts<S> for NestedQuery<T>
 where
     S: Send + Sync,
-    T: DeserializeOwned,
+    T: DeserializeOwned + Send,
 {
     type Rejection = NestedQueryRejection;
 
-    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
-        let query = parts.uri.query().unwrap_or_default();
-        let normalized_query = normalize_dotted_query(query)?;
-
-        let value =
-            serde_qs::from_str::<T>(&normalized_query).map_err(|err| NestedQueryRejection {
-                message: err.to_string(),
-            })?;
-
-        Ok(Self(value))
+    // Parsing is synchronous: a ready future rather than an `async fn` with no `.await`.
+    fn from_request_parts(
+        parts: &mut Parts,
+        _state: &S,
+    ) -> impl Future<Output = Result<Self, Self::Rejection>> + Send {
+        std::future::ready(parse_query(parts.uri.query().unwrap_or_default()).map(Self))
     }
+}
+
+fn parse_query<T: DeserializeOwned>(query: &str) -> Result<T, NestedQueryRejection> {
+    let normalized_query = normalize_dotted_query(query)?;
+
+    serde_qs::from_str::<T>(&normalized_query).map_err(|err| NestedQueryRejection {
+        message: err.to_string(),
+    })
 }
 
 fn normalize_dotted_query(query: &str) -> Result<String, NestedQueryRejection> {

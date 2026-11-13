@@ -4,12 +4,11 @@ resolver = "3"
 exclude = [".github", "bacon.toml", "deny.toml"]
 
 [workspace.package]
-version = "0.1.5"
+version = "0.1.6"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/zs-dima/tonic-rest"
-homepage = "https://github.com/zs-dima/tonic-rest"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
@@ -61,5 +60,4 @@ indoc = "2"
 pretty_assertions = "1"
 
 # Workspace crates
-tonic-rest-core = { version = "0.1.5", path = "crates/tonic-rest-core" }
-tonic-rest-build = { version = "0.1.5", path = "crates/tonic-rest-build", default-features = false }
+tonic-rest-core = { version = "0.1.6", path = "crates/tonic-rest-core" }

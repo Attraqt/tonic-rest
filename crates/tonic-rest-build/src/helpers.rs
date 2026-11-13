@@ -666,8 +666,8 @@ mod tests {
         let builder = ProstSerdeConfig::new(&bytes, &["test.proto"]);
 
         assert_eq!(builder.wkt_root, "tonic_rest::serde");
-        assert!(builder.wkt_map.is_empty());
-        assert!(builder.enum_map.is_empty());
+        assert_eq!(builder.wkt_map.len(), 0);
+        assert_eq!(builder.enum_map.len(), 0);
         assert_eq!(builder.rename_all.as_deref(), Some("camelCase"));
     }
 

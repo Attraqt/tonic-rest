@@ -274,17 +274,17 @@ mod tests {
     #[test]
     fn deserialize_defaults() {
         let config: ProjectConfig = serde_yaml_ng::from_str("{}").unwrap();
-        assert!(config.unimplemented_methods.is_empty());
-        assert!(config.public_methods.is_empty());
-        assert!(config.deprecated_methods.is_empty());
+        assert_eq!(config.unimplemented_methods.len(), 0);
+        assert_eq!(config.public_methods.len(), 0);
+        assert_eq!(config.deprecated_methods.len(), 0);
         assert!(config.plain_text_endpoints.is_empty());
         assert!(config.metrics_path.is_none());
         assert!(config.readiness_path.is_none());
         assert!(config.servers.is_empty());
         assert!(config.info.contact.is_none());
         assert!(config.info.license.is_none());
-        assert!(config.write_only_fields.is_empty());
-        assert!(config.read_only_fields.is_empty());
+        assert_eq!(config.write_only_fields.len(), 0);
+        assert_eq!(config.read_only_fields.len(), 0);
         assert!(config.transforms.upgrade_to_3_1);
         assert!(config.transforms.annotate_sse);
         assert!(config.transforms.inject_servers);

@@ -119,7 +119,7 @@ paths:
         // Public endpoint should have empty security
         let op = doc["paths"]["/v1/auth/login"]["post"].as_mapping().unwrap();
         let security = op.get("security").unwrap().as_sequence().unwrap();
-        assert!(security.is_empty());
+        assert_eq!(security.len(), 0);
     }
 
     #[test]

@@ -5,7 +5,6 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
-homepage.workspace = true
 description = "Shared protobuf descriptor types for the tonic-rest ecosystem (internal crate)"
 documentation = "https://docs.rs/tonic-rest-core"
 readme = "README.md"
